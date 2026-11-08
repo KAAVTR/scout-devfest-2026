@@ -4,16 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx scripts/scout-serve.ts",
-    "build": "vite build",
-    "start": "tsx scripts/scout-serve.ts",
+    "dev": "SCOUT_SKIP_BUILD=1 tsx scripts/scout-serve.ts",
+    "start": "SCOUT_SKIP_BUILD=1 tsx scripts/scout-serve.ts",
     "phone": "SCOUT_SKIP_BUILD=1 tsx scripts/scout-serve.ts",
-    "preview": "vite preview",
-    "clean": "rm -rf dist server.js",
+    "build": "esbuild scripts/local-demo.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/scout-demo.js && esbuild scripts/scout-serve.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/scout-serve.js",
+    "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
-    "test": "tsx test/underwriting-focused.test.ts && tsx test/financing-draft.test.ts && tsx test/tax-boundary.test.ts && tsx test/research-production.test.ts && tsx test/tax-franklin.test.ts && tsx test/live-snapshots.test.ts && tsx test/boundary-matrix.test.ts && tsx test/identity-matrix.test.ts && tsx test/criteria-persistence.test.ts",
-    "build:market-snapshot": "tsx scripts/build-market-snapshot.ts",
-    "build:franklin-tax-index": "python3 scripts/build_franklin_tax_index.py"
+    "test": "npm run build && tsx test/phone-smoke.test.ts",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

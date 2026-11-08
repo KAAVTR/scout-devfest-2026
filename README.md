@@ -8,12 +8,23 @@ Evidence text is a prepared sample labeled "AI-generated demo evidence — not v
 
 ## Run
 
-Node.js 22:
+This repository is the phone-only snapshot. It does not include the separate web app, its Vite config, market-snapshot builder, county index builder, or the broader test suite.
+
+Node.js 22, from this folder:
 
 ```sh
 npm ci
+npm run typecheck
+npm run build
+npm test
 npm run phone
 ```
+
+`npm run dev` and `npm start` start the same loopback phone server. `npm run lint` is the typecheck. `npm run clean` removes `dist/`.
+
+`npm run build` writes a phone-only bundle to `dist/scout-serve.js` and `dist/scout-demo.js`. It does not call a provider. Open the source server with `npm run phone`, or the bundle with `node dist/scout-serve.js`. Both bind to 127.0.0.1:47221 unless you pass another port.
+
+`npm test` builds that phone bundle, then runs an offline HTTP smoke test against the source server and the bundle. It checks the phone page, rank, detail, and provider-off responses. It does not use a network provider.
 
 Open http://127.0.0.1:47221/phone on the same computer. The server binds to loopback only.
 

@@ -1,5 +1,7 @@
 ALLOWLIST.txt
 README.md
+src/types.ts
+test/phone-smoke.test.ts
 package-lock.json
 package.json
 phone-demo/house-left-pass.jpg
