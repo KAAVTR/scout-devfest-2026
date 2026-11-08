@@ -736,17 +736,25 @@ async function main(): Promise<void> {
   server.headersTimeout = 10_000;
   server.keepAliveTimeout = 2_000;
   server.maxConnections = 64;
-  await new Promise<void>((resolve, reject) => {
+  const listenOn = (listenPort: number) => new Promise<void>((resolve, reject) => {
     const onStartupError = (err: Error) => {
       server.off('error', onStartupError);
       reject(err);
     };
     server.once('error', onStartupError);
-    server.listen({ host: '127.0.0.1', port }, () => {
+    server.listen({ host: '127.0.0.1', port: listenPort }, () => {
       server.off('error', onStartupError);
       resolve();
     });
   });
+  try {
+    await listenOn(port);
+  } catch (err) {
+    const busy = (err as NodeJS.ErrnoException).code === 'EADDRINUSE' && port === 47221;
+    if (!busy) throw err;
+    process.stderr.write('Port 47221 is in use. Listening on 47232.\n');
+    await listenOn(47232);
+  }
   server.on('error', () => {
     process.stderr.write('Scout listener failed after start. Stopping the owned assessment process.\n');
     void shutdown(1);

@@ -26,8 +26,14 @@
     .photo { position:relative; height:168px; margin:-16px -16px 12px; border-radius:28px 28px 0 0; overflow:hidden; background:#efe6df; }
     .photo img, .photo svg { display:block; width:100%; height:168px; object-fit:cover; }
     .photo b { position:absolute; left:12px; bottom:12px; border-radius:999px; background:white; color:var(--ink); font-size:12px; padding:6px 10px; }
-    .fiction { margin:8px 0; border-radius:16px; background:#fff1ea; color:#9a3412; font-size:13px; font-weight:800; padding:10px 12px; }
-    .demo-ai { font-size:12px; font-weight:800; color:#9a3412; }
+    .fiction { margin:8px 0; border-radius:16px; background:#fff1ea; color:#9a3412; font-size:12px; font-weight:700; padding:8px 10px; }
+    .ai-badge { display:inline-block; margin:8px 0 0; border-radius:999px; background:#fff7ed; color:#7c2d12; border:1px solid #c2410c; font-size:12px; font-weight:700; line-height:16px; padding:4px 8px; }
+    .research-head { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+    .group-label { margin:12px 0 4px; font-size:12px; font-weight:800; letter-spacing:.04em; }
+    .group-label.calc { color:#137a43; }
+    .group-label.illu { color:#7c2d12; }
+    .comp { display:block; padding:8px 0; border-bottom:1px solid var(--line); font-size:14px; }
+    .comp span { display:block; color:var(--muted); font-size:14px; line-height:1.35; }
     .kicker { color:#c2410c; font-size:12px; font-weight:800; letter-spacing:.04em; }
     .price { font-size:28px; font-weight:800; margin:4px 0; }
     .metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
@@ -75,18 +81,14 @@
     </section>
     <section id="detail" class="hidden">
       <div class="photo" id="detail-photo"><svg viewBox="0 0 320 168" aria-hidden="true"><rect width="320" height="168" fill="#efe6df"/><rect x="78" y="84" width="164" height="64" fill="#d9c3b6"/><polygon points="64,84 160,40 256,84" fill="#c4a898"/><rect x="148" y="108" width="24" height="40" fill="#fbfaf8"/></svg><b>Sample illustration · not a listing photo</b></div>
+      <p class="ai-badge">AI-generated demo · Not verified</p>
+      <p class="fiction">Fictional / sample — not for sale</p>
       <div class="tabs">
         <button type="button" id="tab-finance">Finance</button>
-        <button type="button" id="tab-evidence">Evidence</button>
+        <button type="button" id="tab-evidence">Research</button>
       </div>
       <article class="card" id="finance-panel"></article>
       <article class="card hidden" id="evidence-panel"></article>
-      <article class="card" id="research">
-        <b>Research</b>
-        <p id="research-status">Not requested. Find does not call a model.</p>
-        <button type="button" id="research-run" class="secondary" style="width:100%">Request sources for this area</button>
-        <div id="research-links"></div>
-      </article>
     </section>
     <section id="empty" class="hidden">
       <h1>No ranked samples left</h1>
@@ -141,49 +143,6 @@
     const pointNames = { monthlyCashFlow: "Monthly cash flow", cashOnCash: "Cash-on-cash return", capitalBuffer: "Cash remaining" };
     function esc(value) {
       return String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]));
-    }
-    function safeHttps(url) {
-      if (typeof url !== "string" || !/^https:\/\/[^\s<>"']+$/.test(url)) return "";
-      try {
-        const parsed = new URL(url);
-        if (parsed.protocol !== "https:" || parsed.username || parsed.password) return "";
-        return parsed.href;
-      } catch { return ""; }
-    }
-    function renderResearchLinks(links) {
-      const box = $("research-links");
-      box.replaceChildren();
-      const list = Array.isArray(links) ? links : [];
-      if (!list.length) {
-        const empty = document.createElement("p");
-        empty.textContent = "No source links are available. Nothing was invented.";
-        box.append(empty);
-        return;
-      }
-      for (const link of list) {
-        const p = document.createElement("p");
-        const title = document.createElement("span");
-        title.textContent = link && link.title ? String(link.title) : "Untitled source";
-        p.append(title, document.createElement("br"));
-        const raw = link && typeof link.url === "string" ? link.url : "";
-        const safe = safeHttps(raw);
-        if (safe) {
-          const anchor = document.createElement("a");
-          anchor.href = safe;
-          anchor.rel = "noopener noreferrer";
-          anchor.textContent = safe;
-          p.append(anchor);
-        } else {
-          const plain = document.createElement("span");
-          plain.textContent = raw || "No URL";
-          p.append(plain);
-        }
-        p.append(document.createElement("br"));
-        const note = document.createElement("span");
-        note.textContent = "Not a verified listing. Price, rent, and status were not supplied.";
-        p.append(note);
-        box.append(p);
-      }
     }
     function cardFrom(property) {
       const calc = property.calculation;
@@ -300,15 +259,46 @@
       };
       $("detail-photo").innerHTML = card ? pictureInner(card.id) : "";
       const price = card ? (card.metrics.find((item) => item[0] === "Sample price") || ["", "Price not returned"])[1] : "";
-      $("card").innerHTML = card ? `${pictureFor(card.id)}<p class="fiction">Fictional / sample — not for sale</p><div class="kicker">SAMPLE DATA</div><div class="price">${esc(price)}</div><b>${esc(card.title)}</b><p>${esc(orderNote)} ${card.score === null ? "" : `Score ${esc(card.score)}.`}</p><div class="metrics">${card.metrics.map(([label,value]) => `<div class="metric"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join("")}</div><p>${esc(contributionNote)}</p><p>Example description, not a fact and not used in the calculation: 3 bedrooms, 2 bathrooms.</p><p>Sample assumptions, not market facts: rent, insurance, and the manual tax used by the rank service.</p><p>Calculated from those inputs: cash to close, monthly cash flow, and cash-on-cash.</p><p>Swipe left to pass, or use Pass / Next. Swipe right to inspect, or use Inspect.</p><div class="caution">${esc(card.qualification)}</div>` : "";
-      $("finance-panel").innerHTML = card ? `<p class="fiction">Fictional / sample — not for sale</p>${rows("assumption", "Sample assumptions, not market facts")}${rows("calculated", "Calculated from those inputs")}<b>Rank points, not dollars</b><p>${card.contributions.length ? card.contributions.map(esc).join("<br>") : "No rank points were returned."}</p><div class="caution">${esc(card.tax)}</div><p>${esc(card.qualification)}</p>` : "";
-      $("evidence-panel").innerHTML = card ? `<p class="demo-ai">AI-generated demo evidence — not verified</p><b>Evidence</b><p>Prepared fictional sample. No search ran, and this is not a live model.</p><p>${esc(card.assumptionSentence)} They are not a lease, an insurance policy, or a tax bill.</p><p>Status: ${esc(card.evidenceKind)}. Availability: ${esc(card.availability)}. No listing source or verified badge is claimed.</p><p>${esc(contributionNote)}</p>` : "";
+      $("card").innerHTML = card ? `${pictureFor(card.id)}<p class="fiction">Fictional / sample — not for sale</p><div class="kicker">SAMPLE DATA</div><div class="price">${esc(price)}</div><b>${esc(card.title)}</b><p>${esc(orderNote)} ${card.score === null ? "" : `Score ${esc(card.score)}.`}</p><div class="metrics">${card.metrics.map(([label,value]) => `<div class="metric"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join("")}</div><p>${esc(contributionNote)}</p><p>Example only, not used in the calculation: 3 bedrooms, 2 bathrooms.</p><p>Swipe left to pass, or use Pass / Next. Swipe right to inspect, or use Inspect.</p>` : "";
+      $("finance-panel").innerHTML = card ? `<p class="fiction">Fictional / sample — not for sale</p><p>Rent, insurance, and tax are sample assumptions. Cash to close and cash flow are calculated from them.</p>${rows("assumption", "Sample assumptions, not market facts")}${rows("calculated", "Calculated from those inputs")}<p class="group-label calc">RANK SCORE, NOT DOLLARS</p><p>${card.contributions.length ? card.contributions.map(esc).join("<br>") : "No rank points were returned."}</p>` : "";
+      $("evidence-panel").innerHTML = card ? researchHtml(card) : "";
       $("tab-finance").classList.toggle("on", state.tab === "finance");
       $("tab-evidence").classList.toggle("on", state.tab === "evidence");
       $("finance-panel").classList.toggle("hidden", state.tab !== "finance");
       $("evidence-panel").classList.toggle("hidden", state.tab !== "evidence");
       $("save").textContent = state.saved === (card && card.id) ? "Saved on this phone only" : "Save sample";
       persist();
+    }
+    function fieldText(card, label) {
+      const row = card.metrics.find((item) => item[0] === label);
+      return row ? row[1] : "Not returned";
+    }
+    function assumptionText(card, label) {
+      const row = (card.breakdown || []).find((item) => item.label === label);
+      return row ? row.text : "Not returned";
+    }
+    function researchHtml(card) {
+      const briefs = {
+        "demo-fixture-2": {
+          name: "Sample A",
+          rationale: "Lower sample price. Calculated cash flow and cash left are stronger than Sample B, so this rank score is higher. The picture is not part of the score.",
+          strengths: ["Stronger calculated monthly cash flow of the two samples.", "More cash left after the calculated cash to close."],
+          risks: ["The sample photo shows an overgrown yard. That is not a condition report.", "Rent, tax, and insurance are shared sample assumptions, not a lease, a bill, or a policy."],
+          comps: [["Sample comp A", "Illustrative asking $285,000 · illustrative rent $2,500/mo"], ["Sample comp B", "Illustrative asking $310,000 · illustrative rent $2,700/mo"], ["Sample comp C", "Illustrative asking $325,000 · illustrative rent $2,950/mo"]],
+        },
+        "demo-fixture-1": {
+          name: "Sample B",
+          rationale: "Higher sample price. Calculated cash to close is larger and calculated cash flow is thinner, so this rank score is lower. A tidier picture is not a better result.",
+          strengths: ["Uses the same sample rent, tax, and insurance as Sample A. The comparison is price and cash."],
+          risks: ["Thinner calculated monthly cash flow of the two samples.", "Less cash left after the calculated cash to close. Still not a verified listing."],
+        comps: [["Sample comp A", "Illustrative asking $330,000 · illustrative rent $2,650/mo"], ["Sample comp B", "Illustrative asking $360,000 · illustrative rent $2,800/mo"], ["Sample comp C", "Illustrative asking $375,000 · illustrative rent $3,050/mo"]],
+        },
+      };
+      const brief = briefs[card.id] || { name: "Sample", rationale: "Fictional sample. Not a verified listing.", strengths: [], risks: [], comps: [] };
+      const comps = brief.comps.map(([name, text]) => `<div class="comp"><b>${esc(name)}</b><span>${esc(text)}</span></div>`).join("");
+      const strengths = brief.strengths.map((item) => `<p>${esc(item)}</p>`).join("");
+      const risks = brief.risks.map((item) => `<p>${esc(item)}</p>`).join("");
+      return `<div class="research-head"><b>Research</b><span class="ai-badge">AI-generated demo · Not verified</span></div><p>${esc(brief.name)}. Prepared fictional comparison. Not a live search or a current listing.</p><p>${esc(brief.rationale)}</p><p class="group-label calc">CALCULATED BY THE RANK SERVICE</p><div class="comp"><b>Sample price</b><span>${esc(fieldText(card, "Sample price"))}</span></div><div class="comp"><b>Cash to close</b><span>${esc(fieldText(card, "Cash to close"))}</span></div><div class="comp"><b>Monthly cash flow</b><span>${esc(fieldText(card, "Monthly cash flow"))}</span></div><div class="comp"><b>Cash-on-cash</b><span>${esc(fieldText(card, "Cash-on-cash"))}</span></div><div class="comp"><b>Rank score</b><span>${card.score === null ? "Not ranked" : esc(card.score)}</span></div><p class="group-label">SAMPLE ASSUMPTIONS, NOT MARKET FACTS</p><div class="comp"><b>Example rent</b><span>${esc(assumptionText(card, "Example rent"))}</span></div><div class="comp"><b>Sample insurance</b><span>${esc(assumptionText(card, "Sample insurance"))} / mo</span></div><div class="comp"><b>Sample manual tax</b><span>${esc(assumptionText(card, "Sample manual tax"))} / mo</span></div><p class="group-label illu">ILLUSTRATIVE ONLY — NOT USED IN THE SCORE</p><p>Neighborhood sketch: a two-unit rent band of $2,400–$3,000 a month. No school, job, hazard, or growth figure. Not a measured market.</p>${comps}<p class="group-label">WHY THIS SAMPLE</p>${strengths}<p class="group-label">WATCH</p>${risks}`;
     }
     function readForm() { state.area = $("area").value; state.cash = $("cash").value.trim(); state.budget = $("budget").value.trim(); state.down = $("down").value; state.emphasis = $("emphasis").value; }
     async function rank() {
@@ -425,28 +415,6 @@
     $("deck").append(reset);
     reset.onclick = () => { void resetSession(); };
     $("reset-goal").onclick = () => { void resetSession(); };
-    function researchLocation(note) {
-      const zip = /^(\d{5})$/.exec(note.trim());
-      if (zip) return { kind: "zip", zip: zip[1] };
-      const city = /^([A-Za-z][A-Za-z .'-]{0,38}),\s*([A-Za-z]{2})$/.exec(note.trim());
-      if (!city) return null;
-      return { kind: "city-state", city: city[1].replace(/\s+/g, " "), state: city[2].toUpperCase() };
-    }
-    $("research-run").onclick = async () => {
-      const location = researchLocation($("area").value);
-      if (!location) { $("research-status").textContent = "Type a 5-digit ZIP or a city and state, such as Orlando, FL. Nothing was sent."; return; }
-      $("research-status").textContent = "Asking whether research is armed…";
-      let response;
-      try {
-        response = await fetch("/api/grounded-discovery", { method: "POST", credentials: "same-origin", cache: "no-store", headers: { "content-type": "application/json" }, body: JSON.stringify({ location }) });
-      } catch {
-        $("research-status").textContent = "Research was not reached. No prices or photos were added.";
-        return;
-      }
-      const data = await response.json().catch(() => ({}));
-      renderResearchLinks(Array.isArray(data.discoveredUnverified) ? data.discoveredUnverified : []);
-      $("research-status").textContent = data.summary || data.message || "Research did not return a status.";
-    };
     paint();
     if (state.id && state.screen !== "goal") {
       const ticket = generation;

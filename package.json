@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "npm run build && tsx test/phone-smoke.test.ts",
+    "pack": "node scripts/pack-phone.mjs",
     "clean": "rm -rf dist"
   },
   "dependencies": {

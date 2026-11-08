@@ -5,3 +5,4 @@ scout/dist/
 .env
 .env.*
 *.local
+release/scout-phone-v22/
