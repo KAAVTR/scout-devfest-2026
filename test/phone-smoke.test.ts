@@ -111,7 +111,7 @@ async function start(args: string[]): Promise<{ child: ChildProcess; base: strin
     const line = await ready;
     const parsed = JSON.parse(line) as { status?: string; version?: string; phone?: string; research?: string };
     assert.equal(parsed.status, 'ready');
-    assert.equal(parsed.version, 'v21');
+    assert.equal(parsed.version, 'v22');
     assert.equal(parsed.research, 'off');
     assert.equal(typeof parsed.phone, 'string');
     const base = new URL(parsed.phone ?? '').origin;
@@ -140,7 +140,7 @@ async function exercise(label: string, args: string[]): Promise<void> {
   try {
     const page = await request(base, cookie, '/phone');
     assert.equal(page.status, 200, label);
-    assert.match(page.text, /AI-generated demo evidence — not verified/);
+    assert.match(page.text, /AI-generated demo · Not verified/);
     assert.match(page.text, /monthlyCashFlow: 50, cashOnCash: 30, capitalBuffer: 20/);
 
     const status = await request(base, cookie, '/api/scout-status');

@@ -1,1 +1,1 @@
-export const SCOUT_VERSION = 'v21';
+export const SCOUT_VERSION = 'v22';

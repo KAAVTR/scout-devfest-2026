@@ -9,6 +9,7 @@ phone-demo/house-right-inspect.jpg
 phone-demo/index.html
 phone-demo/work.html
 scripts/local-demo.ts
+scripts/pack-phone.mjs
 scripts/scout-area-cache.ts
 scripts/scout-evidence-explain.ts
 scripts/scout-grounded-discovery.ts

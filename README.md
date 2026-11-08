@@ -4,11 +4,11 @@ Local fictional property demo. It is not a listing service, a loan approval, or 
 
 The phone page ranks two fictional samples. The pictures are sample AI imagery, not real houses. The area note opens as Orlando, FL and is not sent. Dollar amounts come from the included sample calculator. Rank points are not dollars. Rent, insurance, and tax shown as sample assumptions are not a lease, a policy, or a tax bill. "3 bedrooms, 2 bathrooms" is an example description and is not used in the calculation.
 
-Evidence text is a prepared sample labeled "AI-generated demo evidence — not verified." Opening the page, typing, and Find do not call a model.
+The Research screen is labeled "AI-generated demo · Not verified." Opening the page, typing, and Find do not call a model.
 
 ## Run
 
-This repository is the phone-only snapshot. It does not include the separate web app, its Vite config, market-snapshot builder, county index builder, or the broader test suite.
+This repository is the phone-only snapshot, version v22. It does not include the separate web app, its Vite config, market-snapshot builder, county index builder, or the broader test suite. The Research screen is a prepared fictional comparison. Illustrative comp and neighborhood figures are labeled illustrative and are not used in the rank score. It does not call a model.
 
 Node.js 22, from this folder:
 
@@ -26,7 +26,11 @@ npm run phone
 
 `npm test` builds that phone bundle, then runs an offline HTTP smoke test against the source server and the bundle. It checks the phone page, rank, detail, and provider-off responses. It does not use a network provider.
 
-Open http://127.0.0.1:47221/phone on the same computer. The server binds to loopback only.
+Open http://127.0.0.1:47221/phone on the same computer. The server binds to loopback only. If 47221 is already in use, the server listens on 47232 instead.
+
+`npm run pack` writes `release/scout-phone-release-v22.zip`. Unzip it and run `node scout-phone.js` or, on Windows, `scout-phone.cmd`. That folder does not need `npm install`.
+
+This tree is the v21 phone snapshot plus the v22 research-screen polish. It does not include private repository history.
 
 ## Providers
 
@@ -36,6 +40,6 @@ Earlier paid Gemini and Google checks were separate tests. They are not in this 
 
 ## Publication
 
-This tree is the v21 phone snapshot, added as new commits. It does not include private repository history. Do not import that history.
+This tree is the v21 phone snapshot plus the v22 research-screen polish, added as new commits. It does not include private repository history. Do not import that history.
 
 The two house pictures are generated sample images, not photographs of listed homes. Evidence copy is prepared analysis and is labeled AI-generated and unverified. Gemini and Google Search were tested separately and are not live in this demo. The live API arm stays off unless a key is set in the server environment and the separate arm flags are set. Do not add a key or those flags for this demo.
