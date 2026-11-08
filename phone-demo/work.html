@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Scout phone</title>
+  <style>
+    :root { color-scheme: light; --ink:#1f1d1c; --muted:#5f5654; --bg:#fbfaf8; --line:#ece6e2; --good:#137a43; --caution:#8a5300; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"Segoe UI",system-ui,sans-serif; background:#efeae6; color:var(--ink); }
+    .phone { width:min(100%,420px); min-height:100vh; margin:0 auto; background:var(--bg); padding:16px 16px calc(108px + env(safe-area-inset-bottom)); }
+    header { min-height:56px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .brand { display:flex; gap:8px; align-items:center; font-weight:800; }
+    .mark { width:28px; height:28px; border-radius:999px; display:grid; place-items:center; background:#fe3c72; color:white; }
+    .sub { display:block; color:var(--muted); font-size:12px; font-weight:600; }
+    .badge { border-radius:999px; background:#fff1ea; color:#c2410c; font-size:12px; font-weight:800; padding:6px 10px; }
+    h1 { font-size:22px; line-height:30px; margin:8px 0; }
+    p,.note { color:var(--muted); font-size:14px; line-height:1.4; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .field,.card,.metric { background:white; border:1px solid var(--line); border-radius:24px; }
+    .field { min-height:72px; padding:10px 12px; display:flex; flex-direction:column; justify-content:center; gap:2px; position:relative; z-index:1; }
+    .field span,.metric span { display:block; font-size:12px; color:var(--muted); font-weight:600; }
+    input,select { width:100%; min-height:32px; border:0; background:transparent; font:inherit; font-weight:800; color:var(--ink); padding:0; cursor:text; }
+    .wide { grid-column:1 / -1; }
+    .card { margin-top:12px; padding:16px; border-radius:28px; }
+    .photo { position:relative; height:168px; margin:-16px -16px 12px; border-radius:28px 28px 0 0; overflow:hidden; background:#efe6df; }
+    .photo img, .photo svg { display:block; width:100%; height:168px; object-fit:cover; }
+    .photo b { position:absolute; left:12px; bottom:12px; border-radius:999px; background:white; color:var(--ink); font-size:12px; padding:6px 10px; }
+    .fiction { margin:8px 0; border-radius:16px; background:#fff1ea; color:#9a3412; font-size:13px; font-weight:800; padding:10px 12px; }
+    .demo-ai { font-size:12px; font-weight:800; color:#9a3412; }
+    .kicker { color:#c2410c; font-size:12px; font-weight:800; letter-spacing:.04em; }
+    .price { font-size:28px; font-weight:800; margin:4px 0; }
+    .metrics { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .metric { min-height:88px; padding:12px; }
+    .good { color:var(--good); }
+    .caution { margin-top:12px; background:#fff4e5; color:var(--caution); border-radius:16px; padding:12px; font-size:14px; }
+    .line { display:flex; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px; }
+    .bar { position:fixed; z-index:2; left:50%; transform:translateX(-50%); bottom:0; width:min(100%,420px); display:flex; gap:16px; padding:16px 16px calc(16px + env(safe-area-inset-bottom)); background:rgba(251,250,248,.96); }
+    button { min-height:52px; border-radius:999px; border:1px solid var(--line); background:white; color:var(--ink); font-weight:800; font-size:16px; }
+    .primary { flex:1; border:0; background:linear-gradient(100deg,#ff8c69,#ff5c78); }
+    .secondary { width:140px; }
+    .tabs { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .tabs button { min-height:44px; }
+    .on { background:#1f1d1c; color:white; }
+    .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:108px; background:#1f1d1c; color:white; border-radius:999px; padding:10px 14px; display:flex; gap:12px; align-items:center; }
+    .hidden { display:none; }
+    .error { color:#9f1239; font-weight:700; }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header>
+      <div class="brand"><span class="mark">S</span><span>Scout<span class="sub" id="subtitle">Set your criteria</span></span></div>
+      <div class="badge">SAMPLE DATA</div>
+    </header>
+    <p id="status" role="status"></p>
+    <section id="goal">
+      <p class="fiction">Fictional / sample — not for sale. No real address, listing status, or house photo.</p>
+      <h1>What are you looking for?</h1>
+      <p>Cash, maximum price, and down payment are sent to the existing rank service. This page does not calculate them.</p>
+      <label class="field wide"><span>Search area (kept on this phone, not sent)</span><input id="area" placeholder="Orlando, FL" autocomplete="off" /></label>
+      <p>Saved on this phone only. Not sent, and it does not search or filter the sample list. Orlando, FL is not ZIP 43228.</p>
+      <div class="grid" style="margin-top:8px">
+        <label class="field"><span>Available initial cash</span><input id="cash" inputmode="numeric" value="90000" /></label>
+        <label class="field"><span>Max purchase</span><input id="budget" inputmode="numeric" value="450000" /></label>
+        <label class="field"><span>Down payment</span><select id="down"><option value="20">20% conventional</option><option value="25">25% conventional</option></select></label>
+        <label class="field"><span>Rank emphasis</span><select id="emphasis"><option value="default">Manual default</option><option value="cash">Cash flow</option></select></label>
+      </div>
+      <p>Weights are manual defaults, not model suggestions. Sample fixture assumptions stay the ones the rank service already owns.</p>
+    </section>
+    <section id="deck" class="hidden">
+      <p class="kicker" id="counter"></p>
+      <article class="card" id="card"></article>
+      <button class="secondary" id="edit" type="button" style="width:100%;margin-top:12px">Edit criteria</button>
+    </section>
+    <section id="detail" class="hidden">
+      <div class="photo" id="detail-photo"><svg viewBox="0 0 320 168" aria-hidden="true"><rect width="320" height="168" fill="#efe6df"/><rect x="78" y="84" width="164" height="64" fill="#d9c3b6"/><polygon points="64,84 160,40 256,84" fill="#c4a898"/><rect x="148" y="108" width="24" height="40" fill="#fbfaf8"/></svg><b>Sample illustration · not a listing photo</b></div>
+      <div class="tabs">
+        <button type="button" id="tab-finance">Finance</button>
+        <button type="button" id="tab-evidence">Evidence</button>
+      </div>
+      <article class="card" id="finance-panel"></article>
+      <article class="card hidden" id="evidence-panel"></article>
+      <article class="card" id="research">
+        <b>Research</b>
+        <p id="research-status">Not requested. Find does not call a model.</p>
+        <button type="button" id="research-run" class="secondary" style="width:100%">Request sources for this area</button>
+        <div id="research-links"></div>
+      </article>
+    </section>
+    <section id="empty" class="hidden">
+      <h1>No ranked samples left</h1>
+      <p id="empty-copy">Pass / Next moved through every id the rank service returned.</p>
+    </section>
+    <section id="offline" class="hidden">
+      <h1>Rank service unavailable</h1>
+      <p>No prices, units, or cash-flow figures were filled in.</p>
+    </section>
+  </main>
+  <div class="bar" id="bar-goal"><button class="secondary" id="reset-goal" type="button">Reset</button><button class="primary" id="find" type="button">Find sample matches</button></div>
+  <div class="bar hidden" id="bar-deck"><button class="secondary" id="pass" type="button">Pass / Next</button><button class="primary" id="inspect" type="button">Inspect</button></div>
+  <div class="bar hidden" id="bar-detail"><button class="secondary" id="back" type="button">Back</button><button class="primary" id="save" type="button">Save sample</button></div>
+  <div class="bar hidden" id="bar-empty"><button class="primary" id="again" type="button">Edit criteria</button></div>
+  <div class="bar hidden" id="bar-offline"><button class="primary" id="offline-back" type="button">Back to criteria</button></div>
+  <div class="toast hidden" id="toast"><span>Passed</span><button id="undo" type="button">Undo</button></div>
+  <script>
+    const storeKey = "scout-phone-work";
+    const state = Object.assign({ screen:"goal", area:"Orlando, FL", cash:"90000", budget:"450000", down:"20", emphasis:"default", id:"", revision:0, ordered:[], index:0, cards:{}, tab:"finance", saved:"" }, JSON.parse(sessionStorage.getItem(storeKey) || "{}"));
+    function pictureInner(id) {
+      const tidy = id === "demo-fixture-1";
+      const src = tidy ? "/phone-assets/house-right-inspect.jpg" : "/phone-assets/house-left-pass.jpg";
+      const alt = tidy
+        ? "Fictional sample image of a tidy cream house with a coral door, palms, and a curved paver walkway. Sample AI imagery, not a real property."
+        : "Fictional sample image of a plain ranch house with overgrown grass and a straight driveway. Sample AI imagery, not a real property.";
+      const caption = tidy ? "Sample AI imagery · tidier fictional house · not a real property" : "Sample AI imagery · overgrown yard · not a real property";
+      return `<img src="${src}" alt="${alt}"><b>${caption}</b>`;
+    }
+    function pictureFor(id) { return `<div class="photo">${pictureInner(id)}</div>`; }
+    const $ = (id) => document.getElementById(id);
+    let busy = false;
+    let undoTimer = 0;
+    let generation = 0;
+    function persist() { sessionStorage.setItem(storeKey, JSON.stringify({ screen:state.screen, area:state.area, cash:state.cash, budget:state.budget, down:state.down, emphasis:state.emphasis, id:state.id, revision:state.revision, ordered:state.ordered, index:state.index, tab:state.tab, saved:state.saved })); }
+    function money(value) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return null;
+      const rounded = Math.round(value * 100) / 100;
+      const cents = Math.abs(rounded - Math.trunc(rounded)) > 0.001;
+      return new Intl.NumberFormat("en-US", { style:"currency", currency:"USD", minimumFractionDigits: cents ? 2 : 0, maximumFractionDigits: 2 }).format(rounded);
+    }
+    function percent(value) {
+      if (typeof value !== "number" || !Number.isFinite(value)) return null;
+      const rounded = Math.round(value * 100) / 100;
+      return `${rounded.toLocaleString("en-US", { maximumFractionDigits: 2 })}%`;
+    }
+    function pointsText(value) {
+      const rounded = Math.round(Number(value) * 100) / 100;
+      if (!Number.isFinite(rounded)) return "";
+      const shown = rounded.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return `${rounded > 0 ? "+" : ""}${shown} points`;
+    }
+    const pointNames = { monthlyCashFlow: "Monthly cash flow", cashOnCash: "Cash-on-cash return", capitalBuffer: "Cash remaining" };
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[ch]));
+    }
+    function safeHttps(url) {
+      if (typeof url !== "string" || !/^https:\/\/[^\s<>"']+$/.test(url)) return "";
+      try {
+        const parsed = new URL(url);
+        if (parsed.protocol !== "https:" || parsed.username || parsed.password) return "";
+        return parsed.href;
+      } catch { return ""; }
+    }
+    function renderResearchLinks(links) {
+      const box = $("research-links");
+      box.replaceChildren();
+      const list = Array.isArray(links) ? links : [];
+      if (!list.length) {
+        const empty = document.createElement("p");
+        empty.textContent = "No source links are available. Nothing was invented.";
+        box.append(empty);
+        return;
+      }
+      for (const link of list) {
+        const p = document.createElement("p");
+        const title = document.createElement("span");
+        title.textContent = link && link.title ? String(link.title) : "Untitled source";
+        p.append(title, document.createElement("br"));
+        const raw = link && typeof link.url === "string" ? link.url : "";
+        const safe = safeHttps(raw);
+        if (safe) {
+          const anchor = document.createElement("a");
+          anchor.href = safe;
+          anchor.rel = "noopener noreferrer";
+          anchor.textContent = safe;
+          p.append(anchor);
+        } else {
+          const plain = document.createElement("span");
+          plain.textContent = raw || "No URL";
+          p.append(plain);
+        }
+        p.append(document.createElement("br"));
+        const note = document.createElement("span");
+        note.textContent = "Not a verified listing. Price, rent, and status were not supplied.";
+        p.append(note);
+        box.append(p);
+      }
+    }
+    function cardFrom(property) {
+      const calc = property.calculation;
+      const metrics = [];
+      if (calc && money(calc.purchasePrice)) metrics.push(["Sample price", money(calc.purchasePrice)]);
+      if (calc && money(calc.cashToClose)) metrics.push(["Cash to close", money(calc.cashToClose)]);
+      if (calc && money(calc.monthlyCashFlow)) metrics.push(["Monthly cash flow", money(calc.monthlyCashFlow)]);
+      if (calc && typeof calc.cashOnCashPercent === "number") metrics.push(["Cash-on-cash", percent(calc.cashOnCashPercent)]);
+      const taxKnown = Boolean(calc && calc.isTaxKnown && typeof calc.annualTax === "number");
+      const determined = Boolean(calc && calc.areReturnsComplete && taxKnown && property.ranking && property.ranking.kind === "ranked");
+      return {
+        id: property.id,
+        title: property.label || property.id,
+        ranked: Boolean(property.ranking && property.ranking.kind === "ranked"),
+        metrics,
+        tax: taxKnown ? `Sample manual tax ${money(calc.annualTax)}` : "Property tax: not verified. A missing tax is not shown as $0.",
+        qualification: determined ? "The sample service ranked this card. Availability is not verified." : "Qualification undetermined. Essential costs or returns are incomplete.",
+        rank: property.ranking && property.ranking.kind === "ranked" ? property.ranking.rank : null,
+        score: property.ranking && property.ranking.kind === "ranked" ? property.ranking.score : null,
+        contributions: property.ranking && Array.isArray(property.ranking.contributions) ? property.ranking.contributions.map((item) => `${pointNames[item.key] || item.key} ${pointsText(item.points)}`) : [],
+        breakdown: calc ? [
+          ["Example rent", calc.rentMonthly, "assumption"],
+          ["Sample insurance", calc.monthlyInsurance, "assumption"],
+          ["Sample manual tax", calc.monthlyTax, "assumption"],
+          ["Mortgage payment", calc.monthlyMortgagePayment, "calculated"],
+          ["Vacancy allowance", calc.monthlyVacancy, "calculated"],
+          ["Repairs allowance", calc.monthlyRepairs, "calculated"],
+          ["Management allowance", calc.monthlyManagement, "calculated"],
+          ["Monthly cash flow", calc.monthlyCashFlow, "calculated"],
+          ["Cash to close", calc.cashToClose, "calculated"],
+          ["Cash left after close", calc.remainingCash, "calculated"],
+        ].flatMap(([label, value, kind]) => { const text = money(value); return text ? [{ label, text, kind }] : []; }) : [],
+        assumptionSentence: calc ? `Sample assumptions used for this card: rent ${money(calc.rentMonthly) || "not returned"} a month, insurance ${money(calc.annualInsurance) || "not returned"} a year, manual tax ${money(calc.annualTax) || "not returned"} a year.` : "",
+        evidenceKind: property.evidence && property.evidence.kind ? property.evidence.kind : "not-returned",
+        availability: property.evidence && property.evidence.availability ? property.evidence.availability : "not-returned",
+        citations: property.evidence && Array.isArray(property.evidence.citations) ? property.evidence.citations.length : 0,
+      };
+    }
+    function readSnapshot(body) {
+      const session = body && body.session;
+      const assessment = session && session.assessment;
+      if (!session || typeof session.id !== "string" || typeof session.revision !== "number" || !assessment || !Array.isArray(assessment.orderedIds) || !Array.isArray(assessment.properties)) return null;
+      const cards = {};
+      for (const property of assessment.properties) if (property && typeof property.id === "string") cards[property.id] = cardFrom(property);
+      return { id: session.id, revision: session.revision, ordered: assessment.orderedIds.filter((id) => cards[id]), cards };
+    }
+    function readDetail(body) {
+      if (!body || !body.property || typeof body.property.id !== "string") return null;
+      return cardFrom(body.property);
+    }
+    function payload() {
+      const cash = Number(state.cash);
+      const budget = Number(state.budget);
+      const down = Number(state.down);
+      const weights = state.emphasis === "cash" ? { monthlyCashFlow: 80, cashOnCash: 10, capitalBuffer: 10 } : { monthlyCashFlow: 50, cashOnCash: 30, capitalBuffer: 20 };
+      return {
+        contractVersion: "property-assessment-v1",
+        goals: {
+          criteria: { scope:"zip", locationName:"ZIP 43215", selectedState:"Ohio", selectedMetro:"Columbus, OH", selectedZip:"43215", manualListings:[], maxPurchasePrice:budget, downPaymentCash:cash, propertyTypes:["duplex"], strategy:"long-term-rental" },
+          financingAssumptions: { interestRate:6.5, loanTermYears:30, downPaymentPercent:down, propertyTaxRate:1.25, insuranceRate:0.6, maintenanceRate:5, vacancyRate:5, managementRate:8, holdingPeriodYears:5, closingCostPercent:3, initialReserves:0 },
+          weightsSnapshot: { demographics:50, infrastructure:50, retailAnchors:50, hazardRisk:50, schoolQuality:50, rentYield:50 },
+        },
+        propertyWeights: weights,
+        assumptions: [
+          { id:"demo-fixture-1", rentMonthly:2760, annualInsurance:1600, tax:{ kind:"manual", annualAmount:4000 } },
+          { id:"demo-fixture-2", rentMonthly:2760, annualInsurance:1600, tax:{ kind:"manual", annualAmount:4000 } },
+        ],
+      };
+    }
+    function problem() {
+      if (state.area.length > 80) return "Keep the area note to 80 characters. It is not sent.";
+      if (!/^\d+$/.test(state.cash) || Number(state.cash) < 1) return "Enter available cash as a whole dollar amount.";
+      if (!/^\d+$/.test(state.budget) || Number(state.budget) < 1) return "Enter a maximum price as a whole dollar amount.";
+      return "";
+    }
+    async function post(body) {
+      let response;
+      try {
+        response = await fetch("/api/demo-sessions", { method:"POST", credentials:"same-origin", cache:"no-store", headers:{ "content-type":"application/json" }, body:JSON.stringify(body) });
+      } catch {
+        const error = new Error("offline");
+        error.kind = "offline";
+        throw error;
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const error = new Error("api");
+        error.status = response.status;
+        error.code = data && data.error && data.error.code || data && data.failure && data.failure.kind || "";
+        error.messageText = data && data.failure && data.failure.message || "";
+        throw error;
+      }
+      return data;
+    }
+    function endedMessage() {
+      state.id = ""; state.revision = 0; state.ordered = []; state.cards = {}; state.index = 0; state.saved = ""; state.screen = "goal";
+      $("status").textContent = "The in-memory sample ended. Your criteria are still here. Find sample matches starts a new one.";
+      $("status").className = "note";
+    }
+    function paint() {
+      for (const name of ["goal","deck","detail","empty","offline"]) {
+        $(name).classList.toggle("hidden", state.screen !== name);
+        $("bar-"+name).classList.toggle("hidden", state.screen !== name);
+      }
+      if (state.screen !== "deck") $("toast").classList.add("hidden");
+      $("subtitle").textContent = state.screen === "detail" ? "Inspect sample" : state.screen === "deck" ? `Sample match ${state.index + 1} of ${state.ordered.length}` : "Set your criteria";
+      $("area").value = state.area; $("cash").value = state.cash; $("budget").value = state.budget; $("down").value = state.down; $("emphasis").value = state.emphasis;
+      const card = state.cards[state.ordered[state.index]];
+      const orderNote = card && card.rank === 1 ? "This sample is first in the calculated order. The picture is not the reason." : card && card.rank ? "This sample is later in the calculated order. A tidier picture is not a better result." : "This sample is not ranked.";
+      const contributionNote = card && card.contributions.length ? `Rank points, not dollars: ${card.contributions.join("; ")}.` : "No rank points were returned.";
+      const rows = (kind, title) => {
+        const list = card && card.breakdown ? card.breakdown.filter((row) => row.kind === kind) : [];
+        return list.length ? `<b>${esc(title)}</b>${list.map((row) => `<div class="line"><span>${esc(row.label)}</span><b>${esc(row.text)}</b></div>`).join("")}` : "";
+      };
+      $("detail-photo").innerHTML = card ? pictureInner(card.id) : "";
+      const price = card ? (card.metrics.find((item) => item[0] === "Sample price") || ["", "Price not returned"])[1] : "";
+      $("card").innerHTML = card ? `${pictureFor(card.id)}<p class="fiction">Fictional / sample — not for sale</p><div class="kicker">SAMPLE DATA</div><div class="price">${esc(price)}</div><b>${esc(card.title)}</b><p>${esc(orderNote)} ${card.score === null ? "" : `Score ${esc(card.score)}.`}</p><div class="metrics">${card.metrics.map(([label,value]) => `<div class="metric"><span>${esc(label)}</span><b>${esc(value)}</b></div>`).join("")}</div><p>${esc(contributionNote)}</p><p>Example description, not a fact and not used in the calculation: 3 bedrooms, 2 bathrooms.</p><p>Sample assumptions, not market facts: rent, insurance, and the manual tax used by the rank service.</p><p>Calculated from those inputs: cash to close, monthly cash flow, and cash-on-cash.</p><p>Swipe left to pass, or use Pass / Next. Swipe right to inspect, or use Inspect.</p><div class="caution">${esc(card.qualification)}</div>` : "";
+      $("finance-panel").innerHTML = card ? `<p class="fiction">Fictional / sample — not for sale</p>${rows("assumption", "Sample assumptions, not market facts")}${rows("calculated", "Calculated from those inputs")}<b>Rank points, not dollars</b><p>${card.contributions.length ? card.contributions.map(esc).join("<br>") : "No rank points were returned."}</p><div class="caution">${esc(card.tax)}</div><p>${esc(card.qualification)}</p>` : "";
+      $("evidence-panel").innerHTML = card ? `<p class="demo-ai">AI-generated demo evidence — not verified</p><b>Evidence</b><p>Prepared fictional sample. No search ran, and this is not a live model.</p><p>${esc(card.assumptionSentence)} They are not a lease, an insurance policy, or a tax bill.</p><p>Status: ${esc(card.evidenceKind)}. Availability: ${esc(card.availability)}. No listing source or verified badge is claimed.</p><p>${esc(contributionNote)}</p>` : "";
+      $("tab-finance").classList.toggle("on", state.tab === "finance");
+      $("tab-evidence").classList.toggle("on", state.tab === "evidence");
+      $("finance-panel").classList.toggle("hidden", state.tab !== "finance");
+      $("evidence-panel").classList.toggle("hidden", state.tab !== "evidence");
+      $("save").textContent = state.saved === (card && card.id) ? "Saved on this phone only" : "Save sample";
+      persist();
+    }
+    function readForm() { state.area = $("area").value; state.cash = $("cash").value.trim(); state.budget = $("budget").value.trim(); state.down = $("down").value; state.emphasis = $("emphasis").value; }
+    async function rank() {
+      if (busy) return;
+      readForm();
+      const message = problem();
+      if (message) { $("status").textContent = message; $("status").className = "error"; return; }
+      const ticket = generation;
+      busy = true; $("find").disabled = true;
+      $("status").textContent = "Asking the rank service…"; $("status").className = "note";
+      try {
+        let data;
+        try {
+          data = state.id ? await post({ op:"recalculate", id:state.id, revision:state.revision, request:payload() }) : await post({ op:"create", request:payload() });
+        } catch (error) {
+          if (error.code !== "session-unavailable") throw error;
+          state.id = ""; state.revision = 0;
+          data = await post({ op:"create", request:payload() });
+          if (ticket !== generation) return;
+          $("status").textContent = "The previous in-memory sample ended. A new sample ranking used the same criteria.";
+        }
+        if (ticket !== generation) return;
+        const next = readSnapshot(data);
+        if (!next) throw new Error("unreadable");
+        Object.assign(state, next, { index:0, screen: next.ordered.length ? "deck" : "empty" });
+        if (!$("status").textContent.includes("previous in-memory")) $("status").textContent = "Sample data from the rank service. Not a verified listing.";
+        $("status").className = "note";
+      } catch (error) {
+        if (ticket !== generation) return;
+        if (error.status === 429) {
+          $("status").textContent = error.messageText || "This local demo paused further ranking changes. Figures already shown stay.";
+          $("status").className = "error";
+          return;
+        }
+        if (error.kind === "offline") {
+          if (!state.ordered.length) state.screen = "offline";
+          $("status").textContent = "The rank service could not be reached. No prices were invented.";
+          $("status").className = "error";
+          return;
+        }
+        if (error.code === "session-unavailable") { endedMessage(); return; }
+        if (error.code) {
+          $("status").textContent = `The rank service rejected that input (${error.code}). No figures were invented.`;
+          $("status").className = "error";
+          if (!state.ordered.length) state.screen = "goal";
+          return;
+        }
+        state.screen = "offline";
+        $("status").textContent = "The rank service could not be reached. No prices were invented.";
+      } finally { busy = false; $("find").disabled = false; if (ticket === generation) paint(); }
+    }
+    $("find").onclick = () => { void rank(); };
+    $("pass").onclick = () => { state.index += 1; state.screen = state.index >= state.ordered.length ? "empty" : "deck"; $("toast").classList.remove("hidden"); clearTimeout(undoTimer); undoTimer = setTimeout(() => $("toast").classList.add("hidden"), 5000); paint(); };
+    let swipeStart = null;
+    function beginSwipe(x, y) { if (state.screen === "deck") swipeStart = { x, y }; }
+    function finishSwipe(x, y) {
+      if (!swipeStart || state.screen !== "deck") { swipeStart = null; return; }
+      const dx = x - swipeStart.x;
+      const dy = y - swipeStart.y;
+      swipeStart = null;
+      if (Math.abs(dx) < 48 || Math.abs(dx) < Math.abs(dy)) return;
+      if (dx < 0) $("pass").click();
+      else $("inspect").click();
+    }
+    $("card").addEventListener("touchstart", (event) => { const t = event.changedTouches[0]; beginSwipe(t.clientX, t.clientY); }, { passive: true });
+    window.addEventListener("touchend", (event) => { const t = event.changedTouches[0]; if (t) finishSwipe(t.clientX, t.clientY); });
+    $("card").addEventListener("mousedown", (event) => beginSwipe(event.clientX, event.clientY));
+    window.addEventListener("mousedown", (event) => { if (!event.target.closest || !event.target.closest("#card")) swipeStart = null; });
+    window.addEventListener("mouseup", (event) => finishSwipe(event.clientX, event.clientY));
+    $("undo").onclick = () => { if (state.index > 0) state.index -= 1; state.screen = "deck"; $("toast").classList.add("hidden"); paint(); };
+    $("inspect").onclick = async () => {
+      const propertyId = state.ordered[state.index];
+      const sessionId = state.id;
+      const ticket = generation;
+      if (!propertyId || !sessionId) return;
+      try {
+        const data = await post({ op:"detail", id:sessionId, revision:state.revision, propertyId });
+        if (ticket !== generation || state.id !== sessionId) return;
+        const card = readDetail(data);
+        if (card && card.id === propertyId) state.cards[propertyId] = card;
+        if (state.ordered[state.index] !== propertyId) return;
+        state.screen = "detail"; state.tab = "finance";
+      } catch (error) {
+        if (ticket !== generation || state.id !== sessionId) return;
+        if (error.code === "session-unavailable") { endedMessage(); return; }
+        $("status").textContent = "Detail was not returned. Showing the rank snapshot only.";
+        if (state.ordered[state.index] === propertyId) { state.screen = "detail"; state.tab = "finance"; }
+      } finally { if (ticket === generation) paint(); }
+    };
+    $("back").onclick = () => { state.screen = "deck"; paint(); };
+    $("edit").onclick = () => { state.screen = "goal"; paint(); };
+    $("tab-finance").onclick = () => { state.tab = "finance"; paint(); };
+    $("tab-evidence").onclick = () => { state.tab = "evidence"; paint(); };
+    $("save").onclick = () => {
+      const card = state.cards[state.ordered[state.index]];
+      if (!card) return;
+      localStorage.setItem("scout-phone-saved-sample", JSON.stringify({ storage:"this-browser-only", id:card.id, title:card.title, sessionId:state.id }));
+      state.saved = card.id; paint();
+    };
+    $("again").onclick = () => { state.screen = "goal"; paint(); };
+    $("offline-back").onclick = () => { state.screen = "goal"; paint(); };
+    async function resetSession() {
+      const id = state.id;
+      const revision = state.revision;
+      generation += 1;
+      state.id = ""; state.revision = 0; state.ordered = []; state.cards = {}; state.index = 0; state.screen = "goal"; state.saved = "";
+      $("status").textContent = "Session cleared in this preview. Criteria stay on this phone.";
+      $("status").className = "note";
+      paint();
+      if (id) { try { await post({ op:"delete", id, revision }); } catch { /* Already gone. */ } }
+    }
+    const reset = document.createElement("button");
+    reset.id = "reset"; reset.type = "button"; reset.textContent = "Reset"; reset.className = "secondary"; reset.style.width = "100%"; reset.style.marginTop = "8px";
+    $("deck").append(reset);
+    reset.onclick = () => { void resetSession(); };
+    $("reset-goal").onclick = () => { void resetSession(); };
+    function researchLocation(note) {
+      const zip = /^(\d{5})$/.exec(note.trim());
+      if (zip) return { kind: "zip", zip: zip[1] };
+      const city = /^([A-Za-z][A-Za-z .'-]{0,38}),\s*([A-Za-z]{2})$/.exec(note.trim());
+      if (!city) return null;
+      return { kind: "city-state", city: city[1].replace(/\s+/g, " "), state: city[2].toUpperCase() };
+    }
+    $("research-run").onclick = async () => {
+      const location = researchLocation($("area").value);
+      if (!location) { $("research-status").textContent = "Type a 5-digit ZIP or a city and state, such as Orlando, FL. Nothing was sent."; return; }
+      $("research-status").textContent = "Asking whether research is armed…";
+      let response;
+      try {
+        response = await fetch("/api/grounded-discovery", { method: "POST", credentials: "same-origin", cache: "no-store", headers: { "content-type": "application/json" }, body: JSON.stringify({ location }) });
+      } catch {
+        $("research-status").textContent = "Research was not reached. No prices or photos were added.";
+        return;
+      }
+      const data = await response.json().catch(() => ({}));
+      renderResearchLinks(Array.isArray(data.discoveredUnverified) ? data.discoveredUnverified : []);
+      $("research-status").textContent = data.summary || data.message || "Research did not return a status.";
+    };
+    paint();
+    if (state.id && state.screen !== "goal") {
+      const ticket = generation;
+      const sessionId = state.id;
+      post({ op:"read", id:sessionId }).then((data) => {
+        if (ticket !== generation || state.id !== sessionId) return;
+        const next = readSnapshot(data);
+        if (!next) throw new Error("read");
+        Object.assign(state, next);
+        if (state.index >= state.ordered.length) state.screen = "empty";
+        paint();
+      }).catch((error) => {
+        if (ticket !== generation) return;
+        endedMessage();
+        paint();
+      });
+    }
+  </script>
+</body>
+</html>

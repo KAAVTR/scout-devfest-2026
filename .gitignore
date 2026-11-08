@@ -1,0 +1,7 @@
+node_modules/
+dist/
+scout/dist/
+.netlify/
+.env
+.env.*
+*.local
