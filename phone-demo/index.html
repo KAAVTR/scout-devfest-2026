@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Scout phone preview</title>
+  <style>
+    :root { color-scheme: light; --ink: #1f1d1c; --muted: #5f5654; --bg: #fbfaf8; --line: #ece6e2; --good: #137a43; --caution: #8a5300; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #efeae6; color: var(--ink); font-size: 16px; }
+    .phone { width: min(100%, 420px); min-height: 100vh; margin: 0 auto; background: var(--bg); padding: 16px 16px calc(108px + env(safe-area-inset-bottom)); }
+    header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .brand { display: flex; gap: 8px; align-items: center; font-weight: 800; }
+    .mark { width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; color: white; background: #fe3c72; font-size: 14px; }
+    .sub { display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
+    .badge { border-radius: 999px; background: #fff1ea; color: #c2410c; font-size: 12px; font-weight: 800; padding: 6px 10px; }
+    h1 { font-size: 22px; line-height: 30px; margin: 8px 0; }
+    .note, p { color: var(--muted); line-height: 1.4; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .field, .metric, .card, .tax, .evidence { background: white; border: 1px solid var(--line); border-radius: 24px; }
+    .field { min-height: 64px; padding: 10px 12px; }
+    .field span, .metric span { display: block; font-size: 12px; color: var(--muted); }
+    .field b, .metric b { font-size: 16px; }
+    .metric b { font-size: 18px; }
+    input, select { width: 100%; border: 0; background: transparent; font: inherit; font-weight: 800; color: var(--ink); padding: 0; }
+    .wide { grid-column: 1 / -1; }
+    .card { margin-top: 12px; padding: 16px; border-radius: 28px; }
+    .photo { height: 190px; margin: -16px -16px 12px; border-radius: 28px 28px 0 0; background: linear-gradient(160deg, #e7d3c4, #8c5a49 55%, #2c211c); display: flex; align-items: flex-end; padding: 12px; color: white; font-size: 12px; font-weight: 700; }
+    .chip { display: inline-block; border-radius: 999px; background: white; padding: 6px 10px; font-size: 12px; font-weight: 800; }
+    .kicker { color: #c2410c; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; }
+    .price { font-size: 28px; font-weight: 800; margin: 4px 0; }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric { min-height: 88px; padding: 12px; }
+    .good { color: var(--good); }
+    .caution { margin-top: 12px; background: #fff4e5; color: var(--caution); border-radius: 16px; padding: 12px; font-size: 14px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .chips span { border: 1px solid var(--line); background: white; border-radius: 999px; padding: 8px 12px; font-size: 14px; }
+    .bar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: min(100%, 420px); display: flex; gap: 16px; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); background: rgba(251, 250, 248, 0.96); }
+    button { min-height: 52px; border-radius: 999px; border: 1px solid var(--line); background: white; color: var(--ink); font-weight: 800; font-size: 16px; }
+    .primary { flex: 1; border: 0; background: linear-gradient(100deg, #ff8c69, #ff5c78); }
+    .secondary { width: 140px; }
+    .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+    .tabs button { min-height: 44px; }
+    .tabs .on { background: #1f1d1c; color: white; border-color: #1f1d1c; }
+    .line { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 108px; background: #1f1d1c; color: white; border-radius: 999px; padding: 10px 14px; display: flex; gap: 12px; align-items: center; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header>
+      <div class="brand"><span class="mark">S</span><span>Scout<span class="sub" id="subtitle">Set your criteria</span></span></div>
+      <div class="badge">SAMPLE DEMO</div>
+    </header>
+    <section id="goal">
+      <h1>What are you looking for?</h1>
+      <p>Sample values from the source design. Not saved.</p>
+      <label class="field wide"><span>Search area (optional)</span><input id="area" value="" placeholder="Nationwide · add a city or address" autocomplete="off" /></label>
+      <div class="grid" style="margin-top:8px">
+        <label class="field"><span>Available initial cash</span><input id="cash" value="90000" inputmode="numeric" /></label>
+        <label class="field"><span>Max purchase</span><input id="budget" value="400000" inputmode="numeric" /></label>
+        <label class="field"><span>Down payment</span><b>20% conventional</b></label>
+        <label class="field"><span>Closing cost</span><b>3%</b></label>
+        <label class="field"><span>Min cash flow</span><b>$0 / mo</b></label>
+        <label class="field"><span>Property type</span><select id="type"><option value="">Choose type</option><option>Duplex</option><option>Triplex</option><option>Quadplex</option></select></label>
+        <label class="field"><span>Goal</span><select id="goal"><option value="">Choose goal</option><option>House hack</option><option>Rental</option></select></label>
+        <label class="field"><span>Strategy</span><select id="strategy"><option value="">Choose strategy</option><option>Hold</option></select></label>
+      </div>
+      <article class="card">
+        <b>Priorities</b>
+        <p>Manual defaults. A model does not suggest these weights.</p>
+        <div class="chips"><span>Cash flow</span><span>Growth</span><span>Risk</span></div>
+      </article>
+      <p>Hard limits are the cash and maximum price above. Figures on the next screen are sample copy, not a new calculation.</p>
+    </section>
+    <section id="deck" class="hidden">
+      <p class="kicker" id="counter">Sample match 1 of 3</p>
+      <article class="card">
+        <div class="photo">Sample photo · not a listing image</div>
+        <span class="chip" id="rank-chip">Sample rank #1</span>
+        <div id="card-body"></div>
+        <div class="caution">Availability not verified. Sample figures from the source design. No new calculation. Qualification undetermined because essential costs are not verified.</div>
+      </article>
+    </section>
+    <section id="detail" class="hidden">
+      <div class="tabs">
+        <button type="button" id="tab-finance" class="on">Finance</button>
+        <button type="button" id="tab-evidence">Evidence</button>
+      </div>
+      <article class="card" id="finance-panel">
+        <b>Sample finance</b>
+        <div id="finance-rows"></div>
+        <div class="tax" style="margin-top:12px;padding:12px;background:#fff4e5">
+          <b style="color:#8a5300">Property tax: Not verified</b>
+          <p>Official source pending. A missing tax is not shown as $0. Expenses and assumptions need validation before use. Qualification stays undetermined.</p>
+        </div>
+      </article>
+      <article class="card hidden" id="evidence-panel">
+        <b>Evidence</b>
+        <p>Sources not connected in this preview.</p>
+        <p>Growth, jobs, permits, schools, crime, and hazard data are not loaded. Google search links would stay unverified and separate from this rank.</p>
+      </article>
+    </section>
+    <section id="empty" class="hidden">
+      <h1>No sample cards left</h1>
+      <p>Pass / Next moved through the three sample slots. Criteria are still the values you entered.</p>
+    </section>
+  </main>
+  <div class="bar" id="bar-goal"><button class="primary" id="find" type="button">Find sample matches</button></div>
+  <div class="bar hidden" id="bar-deck"><button class="secondary" id="pass" type="button">Pass / Next</button><button class="primary" id="inspect" type="button">Inspect</button></div>
+  <div class="bar hidden" id="bar-detail"><button class="secondary" id="back" type="button">Back</button><button class="primary" id="save" type="button">Save sample</button></div>
+  <div class="bar hidden" id="bar-empty"><button class="primary" id="again" type="button">Back to criteria</button></div>
+  <div class="toast hidden" id="toast"><span>Passed</span><button id="undo" type="button">Undo</button></div>
+  <script>
+    const samples = [
+      { id: "neil", title: "782 Neil Ave", area: "Victorian Village, Columbus OH", facts: "2 bed · 1.5 bath · 1,320 sqft", price: "$285,000", metrics: [["Cash to close", "$65,550", "$24,450 left of cash"], ["Net monthly", "+$625.55/mo", "Source estimate"], ["Estimated rent", "$2,450/mo", "Manual estimate"], ["Cap rate / CoC", "8.7% / 11.5%", "Source estimate"]], rows: [["Asking price", "$285,000"], ["Down payment", "20% conventional"], ["Closing cost", "3%"], ["Cash to close", "$65,550"], ["Initial cash left", "$24,450"], ["Estimated rent", "$2,450/mo"], ["Net monthly", "+$625.55/mo"], ["Cap rate / CoC", "8.7% / 11.5%"]] },
+      { id: "elm", title: "1428 Elmwood Ave", area: "Sample slot 2", facts: "Figure not supplied", price: "No sample price", metrics: [], rows: [] },
+      { id: "high", title: "315 S High St", area: "Sample slot 3", facts: "Figure not supplied", price: "No sample price", metrics: [], rows: [] },
+    ];
+    const key = "scout-phone-layout";
+    const state = Object.assign({ screen: "goal", index: 0, tab: "finance", area: "", cash: "90000", budget: "400000", type: "", goal: "", strategy: "", saved: "" }, JSON.parse(sessionStorage.getItem(key) || "{}"));
+    const $ = (id) => document.getElementById(id);
+    function persist() { sessionStorage.setItem(key, JSON.stringify(state)); }
+    function sample() { return samples[state.index] || samples[0]; }
+    function show() {
+      for (const name of ["goal", "deck", "detail", "empty"]) $(name).classList.toggle("hidden", state.screen !== name);
+      for (const name of ["goal", "deck", "detail", "empty"]) $("bar-" + name).classList.toggle("hidden", state.screen !== name);
+      $("subtitle").textContent = state.screen === "detail" ? `${sample().title} · Inspect` : state.screen === "deck" ? `Sample match ${state.index + 1} of 3` : "Set your criteria";
+      $("area").value = state.area; $("cash").value = state.cash; $("budget").value = state.budget; $("type").value = state.type; $("goal").value = state.goal; $("strategy").value = state.strategy;
+      const card = sample();
+      $("counter").textContent = `Sample match ${Math.min(state.index + 1, 3)} of 3`;
+      $("rank-chip").textContent = `Sample rank #${state.index + 1}`;
+      $("card-body").innerHTML = `<div class="kicker">ASKING PRICE (SAMPLE)</div><div class="price">${card.price}</div><b>${card.title}</b><div class="note">${card.area}</div><div class="note">${card.facts}</div>` + (card.metrics.length ? `<div class="metrics">${card.metrics.map(([l,v,s]) => `<div class="metric"><span>${l}</span><b${l === "Net monthly" ? ' class="good"' : ""}>${v}</b><span>${s}</span></div>`).join("")}</div>` : `<p>No dollar figure was supplied for this sample slot.</p>`);
+      $("finance-rows").innerHTML = card.rows.length ? card.rows.map(([l,v]) => `<div class="line"><span>${l}</span><b>${v}</b></div>`).join("") : `<p>No finance rows were supplied for this sample slot. Qualification undetermined.</p>`;
+      $("tab-finance").classList.toggle("on", state.tab === "finance");
+      $("tab-evidence").classList.toggle("on", state.tab === "evidence");
+      $("finance-panel").classList.toggle("hidden", state.tab !== "finance");
+      $("evidence-panel").classList.toggle("hidden", state.tab !== "evidence");
+      $("save").textContent = state.saved === card.id ? "Saved on this phone only" : "Save sample";
+      persist();
+    }
+    function readCriteria() { state.area = $("area").value; state.cash = $("cash").value; state.budget = $("budget").value; state.type = $("type").value; state.goal = $("goal").value; state.strategy = $("strategy").value; }
+    let undoTimer = 0;
+    $("find").onclick = () => { readCriteria(); state.screen = "deck"; state.index = 0; show(); };
+    $("pass").onclick = () => { state.index += 1; state.screen = state.index >= 3 ? "empty" : "deck"; $("toast").classList.remove("hidden"); clearTimeout(undoTimer); undoTimer = setTimeout(() => $("toast").classList.add("hidden"), 5000); show(); };
+    $("undo").onclick = () => { if (state.index > 0) state.index -= 1; state.screen = "deck"; $("toast").classList.add("hidden"); show(); };
+    $("inspect").onclick = () => { state.screen = "detail"; state.tab = "finance"; show(); };
+    $("back").onclick = () => { state.screen = "deck"; show(); };
+    $("tab-finance").onclick = () => { state.tab = "finance"; show(); };
+    $("tab-evidence").onclick = () => { state.tab = "evidence"; show(); };
+    $("save").onclick = () => { const card = sample(); localStorage.setItem("scout-phone-saved-sample", JSON.stringify({ id: card.id, title: card.title, savedAt: new Date().toISOString(), storage: "this-browser-only" })); state.saved = card.id; show(); };
+    $("again").onclick = () => { state.screen = "goal"; show(); };
+    show();
+  </script>
+</body>
+</html>
